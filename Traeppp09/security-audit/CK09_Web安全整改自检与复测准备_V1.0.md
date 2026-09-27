@@ -18,7 +18,7 @@
 3. 非 ADMIN 用户访问管理 Controller 应返回 403。
 4. `updatePwd` 伪造请求体 `userId` 不应修改他人密码。
 5. 非白名单 `algo` 应返回 400。
-6. `path=../../application.yml` 等路径应被拒绝。
+6. `path=../../application.yml` 等路径应被拒绝；正常图片路径仍应保持原有访问能力。
 7. 恶意 Origin 不应获得 CORS 允许来源。
 8. SQL 初始化脚本不得包含真实默认 BCrypt 哈希。
 
