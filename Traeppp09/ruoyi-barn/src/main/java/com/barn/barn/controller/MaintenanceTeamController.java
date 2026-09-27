@@ -5,12 +5,14 @@ import com.barn.barn.service.MaintenanceTeamService;
 import com.barn.common.core.domain.R;
 import com.barn.common.core.domain.TableDataInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/barn/team")
+@PreAuthorize("hasRole('ADMIN')")
 public class MaintenanceTeamController {
 
     @Autowired
