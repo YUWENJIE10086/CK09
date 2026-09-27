@@ -15,6 +15,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -130,13 +133,22 @@ public class ImageController {
             cleaned = cleaned.substring("upload/".length());
         }
 
-        // 拼接上传路径
-        String basePath = uploadPath;
-        if (!basePath.endsWith("/") && !basePath.endsWith("\\")) {
-            basePath += File.separator;
+        // 仅允许图片扩展名，并在规范化绝对路径后确认仍位于上传目录内。
+        int dot = cleaned.lastIndexOf('.');
+        if (dot <= 0 || dot == cleaned.length() - 1) {
+            return null;
+        }
+        String extension = cleaned.substring(dot + 1).toLowerCase(java.util.Locale.ROOT);
+        if (!Set.of("jpg", "jpeg", "png", "gif", "webp").contains(extension)) {
+            return null;
         }
 
-        return new File(basePath + cleaned);
+        Path basePath = Paths.get(uploadPath).toAbsolutePath().normalize();
+        Path candidate = basePath.resolve(cleaned).normalize().toAbsolutePath();
+        if (!candidate.startsWith(basePath)) {
+            return null;
+        }
+        return candidate.toFile();
     }
 
     /**
