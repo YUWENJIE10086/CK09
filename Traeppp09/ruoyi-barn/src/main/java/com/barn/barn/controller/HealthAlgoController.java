@@ -209,7 +209,8 @@ public class HealthAlgoController {
      */
     @GetMapping("/stats")
     public R<Map<String, Object>> stats(@RequestParam(defaultValue = "bmhi") String algo) {
-        String column = "health_" + algo.toLowerCase();
+        String normalizedAlgo = requireHealthAlgo(algo);
+        String column = "health_" + normalizedAlgo;
         Map<String, Object> result = new LinkedHashMap<>();
         
         Map<String, Object> totalRow = jdbcTemplate.queryForMap(
