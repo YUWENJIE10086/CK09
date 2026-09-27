@@ -350,7 +350,7 @@ public class BarnProjectController {
             if (rows > 0) return R.ok("更新成功");
             return R.fail("更新失败，烤房不存在");
         } catch (Exception e) {
-            return R.fail("更新失败: " + e.getMessage());
+            return R.fail("更新失败，请稍后重试");
         }
     }
 
