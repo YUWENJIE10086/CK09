@@ -2,6 +2,7 @@ package com.barn.barn.controller;
 
 import com.barn.barn.service.AIService;
 import com.barn.common.core.domain.R;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +13,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/barn/ai")
+@PreAuthorize("hasRole('ADMIN')")
 public class AIController {
 
     @Autowired
