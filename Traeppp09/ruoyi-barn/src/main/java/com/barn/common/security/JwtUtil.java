@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import javax.annotation.PostConstruct;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -21,6 +22,16 @@ public class JwtUtil {
 
     @Value("${jwt.expire}")
     private long expire;
+
+    @PostConstruct
+    public void validateConfiguration() {
+        if (secret == null || secret.length() < 64) {
+            throw new IllegalStateException("JWT_SECRET must be at least 64 characters for HS512");
+        }
+        if (expire <= 0) {
+            throw new IllegalStateException("jwt.expire must be greater than 0");
+        }
+    }
 
     public String generateToken(Long userId, String userName) {
         return generateToken(userId, userName, "01");
