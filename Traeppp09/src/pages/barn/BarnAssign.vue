@@ -166,7 +166,7 @@ function handleCountyChange(countyName: string) {
 async function loadTowns(countyName: string) {
   if (!countyName) { townOptions.value = []; return }
   try {
-    const res: any = await listTownship({ countyCode: countyName })
+    const res: any = await listTownship(countyName)
     townOptions.value = (res || []).map((t: any) => ({ value: t.townshipName, label: t.townshipName }))
   } catch { townOptions.value = [] }
 }
