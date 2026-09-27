@@ -1,7 +1,6 @@
 package com.barn.barn.controller;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +26,6 @@ import java.util.concurrent.TimeUnit;
  */
 @RestController
 @RequestMapping("/api/image")
-@PreAuthorize("isAuthenticated()")
 public class ImageController {
 
     @Value("${upload.path:d:/云盘/MyWeb/烤房项目/upload/}")
