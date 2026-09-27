@@ -35,6 +35,7 @@ public class SysUserController {
      * 用户列表（分页）
      */
     @GetMapping("/list")
+    @PreAuthorize("hasRole('ADMIN')")
     public TableDataInfo<SysUser> list(
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "10") int pageSize,
@@ -67,6 +68,7 @@ public class SysUserController {
      * 获取用户详情
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public R<SysUser> getInfo(@PathVariable Long id) {
         SysUser user = sysUserMapper.selectById(id);
         if (user != null) {
