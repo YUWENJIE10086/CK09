@@ -72,6 +72,9 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
+      - name: Dependency audit snapshot
+        run: npm audit --json > npm-audit.json || true
+
       - name: Type check frontend
         run: npm run check
 
