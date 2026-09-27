@@ -44,3 +44,4 @@
 ### 3.1–3.9 专项待办
 
 需补齐实际小程序源码、Flask/Python 服务或生产发布包后，再逐项做动态验证；在证据缺失前保持“未确认”，不把“仓库不存在”写成“漏洞已修复”。
+\n\n## V2.1.1 自检补充（2026-09-27）\n\n- PR #3 已合并：`112d1cb6212db93e8d59111fcebfbcfed19f7cf9`。\n- CI 已新增前端 `npm ci`、`npm run check`、`npm run build`。\n- 当前 workflow 查询尚未返回该 commit 的实际运行记录，因此不把 CI 标记为“通过”。\n- 前端工程已确认是 Vue 3/Vite；原审计 3.1–3.9 所对应的小程序/Flask 服务仍待定位。\n\n### 下一轮必须补齐\n\n13. 获取 GitHub Actions 实际成功日志，保存为复测证据。\n14. 获取实际部署包/生产 API，逐项复测 3.1–3.9。\n15. 对 /upload/**、禁用 JWT、RBAC、CORS、AI Query 执行黑盒验证并保存响应证据。\n16. 完成 Fortify/CODE SEC/人工渗透复测。\n
