@@ -23,9 +23,15 @@ public class JwtUtil {
     private long expire;
 
     public String generateToken(Long userId, String userName) {
+        return generateToken(userId, userName, "01");
+    }
+
+    public String generateToken(Long userId, String userName, String userType) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("userName", userName);
+        claims.put("userType", userType);
+        claims.put("role", "00".equals(userType) ? "ROLE_ADMIN" : "ROLE_USER");
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + expire * 1000);
 
