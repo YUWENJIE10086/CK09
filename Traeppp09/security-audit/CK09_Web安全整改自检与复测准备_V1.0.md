@@ -66,3 +66,14 @@
 - JWT_SECRET：要求至少 64 字符；部署验证时必须检查环境变量。
 - MyBatis StdOutImpl：已移除。
 - 注意：源码修改完成不等同于运行环境已满足 JWT_SECRET 要求，需在实际部署环境启动验证。
+
+
+## V2.1.6 复测记录（2026-09-27）
+- [x] JJWT 依赖升级完成
+- [x] JwtUtil 新 API 编译通过
+- [x] Maven test 通过
+- [x] Maven package 通过
+- [x] Security baseline scan 通过
+- [ ] 前端 TypeScript check 全量通过（存在既有 12 项错误）
+- [ ] npm audit 依赖漏洞完成逐项处置
+- [ ] 生产环境 JWT_SECRET 实际值与启动校验验证
