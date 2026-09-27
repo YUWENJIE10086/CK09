@@ -89,3 +89,15 @@
 - [ ] Vite/PostCSS/ECharts 等直接依赖升级
 - [ ] xlsx 实际使用面核查及替代方案评估
 - [ ] PptxGenJS/image-size 依赖链升级
+
+
+## V2.1.8 文档状态校正（2026-09-27）
+
+本节为当前主线状态的最新记录，优先于本文前述历史版本中的“待执行/待验证”表述。
+
+- 当前主线基线：main@6cbf40ee3fcdd128ec087f687f3191bccc7420c3。
+- 代码整改状态：截至该基线，前端 12 项 TypeScript 类型错误已修复；frontend npm run check、frontend npm run build、backend Maven test/package、安全基线扫描均已有 CI 成功证据。
+- npm 依赖状态：仍有 17 项漏洞（7 moderate、10 high、0 critical），尚未完成依赖专项处置；不得在本文中表述为“依赖漏洞已清零”。
+- 仍未闭环的原审计项：3.1–3.9 对应的小程序/Flask 服务或生产发布包仍未在当前仓库中定位，因此继续保持“待定位/待复测”，不得改写为已修复。
+- 仍需真实环境证据：数据库初始化、登录/RBAC/IDOR 黑盒测试、CORS 浏览器测试、AI Query JWT/API Key 实链路、图片路径攻击、生产 JWT_SECRET 启动验证，以及 Fortify/CODE SEC/人工渗透复测。
+- 依赖专项下一步：Vite/PostCSS/ECharts、xlsx、PptxGenJS/image-size 等依赖需要在真实 npm 安装和 CI 回归基础上分组升级；不使用 npm audit fix --force，不手工伪造 lockfile integrity。
