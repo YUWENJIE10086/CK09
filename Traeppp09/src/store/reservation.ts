@@ -43,7 +43,7 @@ export const useReservationStore = defineStore('reservation', () => {
   }
 
   /** 审核预约 → 写入数据库 → 刷新缓存 */
-  async function approve(id: number, status: string, opinion: string) {
+  async function approve(id: string, status: string, opinion: string) {
     await approveReservation(id, status, opinion)
     await fetchAll()
     version.value++
