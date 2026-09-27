@@ -5,9 +5,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.barn.common.core.domain.R;
 import com.barn.common.core.domain.TableDataInfo;
+import com.barn.system.dto.SysUserDTO;
 import com.barn.system.entity.SysUser;
 import com.barn.system.mapper.SysUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -75,7 +79,17 @@ public class SysUserController {
      * 新增用户
      */
     @PostMapping
-    public R<Void> add(@RequestBody SysUser user) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public R<Void> add(@RequestBody SysUserDTO dto) {
+        SysUser user = new SysUser();
+        user.setUserName(dto.getUserName());
+        user.setNickName(dto.getNickName());
+        user.setEmail(dto.getEmail());
+        user.setPhone(dto.getPhone());
+        user.setSex(dto.getSex());
+        user.setAvatar(dto.getAvatar());
+        user.setRemark(dto.getRemark());
+        user.setPassword(dto.getPassword());
         // 检查用户名是否重复
         LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SysUser::getUserName, user.getUserName());
@@ -85,6 +99,7 @@ public class SysUserController {
         if (!isValidPassword(user.getPassword())) {
             return R.fail("密码长度必须为8-64位");
         }
+        user.setUserType("01");
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
@@ -102,8 +117,22 @@ public class SysUserController {
      * 修改用户
      */
     @PutMapping
-    public R<Void> edit(@RequestBody SysUser user) {
-        user.setPassword(null); // 不允许通过此接口修改密码
+    @PreAuthorize("hasRole('ADMIN')")
+    public R<Void> edit(@RequestBody SysUserDTO dto) {
+        if (dto.getId() == null) {
+            return R.fail("用户ID不能为空");
+        }
+        SysUser user = sysUserMapper.selectById(dto.getId());
+        if (user == null) {
+            return R.fail("用户不存在");
+        }
+        user.setUserName(dto.getUserName());
+        user.setNickName(dto.getNickName());
+        user.setEmail(dto.getEmail());
+        user.setPhone(dto.getPhone());
+        user.setSex(dto.getSex());
+        user.setAvatar(dto.getAvatar());
+        user.setRemark(dto.getRemark());
         user.setUpdatedAt(LocalDateTime.now());
         sysUserMapper.updateById(user);
         return R.ok();
@@ -113,6 +142,7 @@ public class SysUserController {
      * 删除用户
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public R<Void> remove(@PathVariable Long id) {
         if (id == 1L) {
             return R.fail("不允许删除超级管理员");
@@ -125,6 +155,7 @@ public class SysUserController {
      * 重置密码（管理员操作）
      */
     @PutMapping("/resetPwd/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public R<Void> resetPwd(@PathVariable Long id, @RequestBody Map<String, String> params) {
         SysUser user = sysUserMapper.selectById(id);
         if (user == null) {
@@ -145,13 +176,18 @@ public class SysUserController {
      */
     @PutMapping("/updatePwd")
     public R<Void> updatePwd(@RequestBody Map<String, String> params) {
-        Long id = Long.valueOf(params.getOrDefault("userId", "0"));
         String oldPassword = params.get("oldPassword");
         String newPassword = params.get("newPassword");
 
-        if (id == 0 || oldPassword == null || !isValidPassword(newPassword)) {
+        if (oldPassword == null || !isValidPassword(newPassword)) {
             return R.fail("参数不完整");
         }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof SysUser)) {
+            return R.fail(401, "认证失败，请重新登录");
+        }
+        SysUser principal = (SysUser) authentication.getPrincipal();
+        Long id = principal.getId();
         SysUser user = sysUserMapper.selectById(id);
         if (user == null) {
             return R.fail("用户不存在");
@@ -169,6 +205,7 @@ public class SysUserController {
      * 修改用户状态
      */
     @PutMapping("/changeStatus")
+    @PreAuthorize("hasRole('ADMIN')")
     public R<Void> changeStatus(@RequestBody Map<String, Object> params) {
         Long id = Long.valueOf(params.get("userId").toString());
         String status = params.get("status").toString();
@@ -181,7 +218,11 @@ public class SysUserController {
     }
 
     private boolean isValidPassword(String password) {
-        return password != null && !password.isBlank()
-                && password.length() >= 8 && password.length() <= 64;
+        if (password == null || password.isBlank() || password.length() < 8 || password.length() > 64) {
+            return false;
+        }
+        String normalized = password.toLowerCase();
+        return !java.util.Set.of("admin123", "password", "12345678", "123456789", "qwerty123", "abc123456")
+                .contains(normalized);
     }
 }
