@@ -1,5 +1,6 @@
 ﻿<script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
 import { TrendCharts } from '@element-plus/icons-vue'
 import { recommendBarns } from '@/api/ai'
 import { getBarnOptions } from '@/api/barn'
