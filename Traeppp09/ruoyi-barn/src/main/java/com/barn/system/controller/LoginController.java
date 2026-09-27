@@ -38,7 +38,8 @@ public class LoginController {
     public R<Map<String, Object>> login(@RequestBody Map<String, String> param) {
         String username = param.get("username");
         String password = param.get("password");
-        if (username == null || username.isBlank() || password == null || password.isEmpty()) {
+        if (username == null || username.isBlank() || password == null || password.isEmpty()
+                || username.length() > 128 || password.length() > 128) {
             return R.fail(401, "用户名或密码错误");
         }
         if (loginAttemptService.isLocked(username)) {
