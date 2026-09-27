@@ -52,3 +52,28 @@ jobs:
           fi
 
           echo "Security baseline check passed."
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Traeppp09
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: Traeppp09/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Type check frontend
+        run: npm run check
+
+      - name: Build frontend
+        run: npm run build
