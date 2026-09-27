@@ -75,7 +75,7 @@ jobs:
       - name: Dependency audit snapshot
         run: |
           npm audit --json > npm-audit.json || true
-          node -e "const a=require('./npm-audit.json'); console.log(JSON.stringify(a.metadata?.vulnerabilities||a.vulnerabilities,null,2))"
+          node -e "const a=require('./npm-audit.json'); const v=a.vulnerabilities||{}; for(const [k,x] of Object.entries(v)) console.log(JSON.stringify({package:k,severity:x.severity,direct:x.isDirect,range:x.range,fix:x.fixAvailable,via:(x.via||[]).map(y=>typeof y==='string'?y:y.title)}))"
 
       - name: Type check frontend
         run: npm run check
