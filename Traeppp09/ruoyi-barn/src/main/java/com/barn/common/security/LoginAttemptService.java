@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -49,6 +50,6 @@ public class LoginAttemptService {
     }
 
     private String normalize(String username) {
-        return username == null ? "" : username.trim().toLowerCase();
+        return username == null ? "" : username.trim().toLowerCase(Locale.ROOT);
     }
 }
