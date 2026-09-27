@@ -38,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (claims != null) {
                 String userName = (String) claims.get("userName");
                 SysUser user = sysUserService.getByUserName(userName);
-                if (user != null) {
+                if (user != null && "0".equals(user.getStatus())) {
                     String expectedRole = "00".equals(user.getUserType()) ? "ROLE_ADMIN" : "ROLE_USER";
                     String tokenRole = claims.get("role", String.class);
                     if (tokenRole != null && !expectedRole.equals(tokenRole)) {
