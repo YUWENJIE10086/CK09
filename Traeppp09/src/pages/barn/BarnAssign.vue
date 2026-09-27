@@ -434,7 +434,7 @@ async function handleDeleteHistory(item: any) {
     await deleteAssignment(item.id)
     ElMessage.success('删除成功')
     if (assignForm.ovenId) {
-      const res: any = await getAssignmentsByBarn(assignForm.ovenId)
+      const res: any = await getAssignmentsByBarn(Number(assignForm.ovenId))
       historyList.value = Array.isArray(res) ? res : (res?.rows || [])
     }
     loadData()
