@@ -53,3 +53,11 @@ PR #9 已合并。JWT 配置现在具备启动期密钥长度和有效期校验�
 - JJWT 0.9.1 已不属于官方支持版本范围，存在继续使用旧依赖的维护与安全风险。
 - 已在 PR #11 升级至 JJWT 0.13.0 并完成 API 迁移。
 - 后续需继续梳理 npm audit 报告中的 17 个依赖漏洞，并核对实际可利用性与升级兼容性。
+
+
+## V2.1.7 新增依赖专项（2026-09-27）
+- Vite 当前锁定 5.4.21，audit 命中高危及传递 esbuild 风险；需升级至受支持主版本并同步 @vitejs/plugin-vue。
+- PostCSS 当前锁定 8.5.15，audit 命中高危路径/源码映射相关问题；应升级至当前修复版本。
+- ECharts 当前 5.6.0，audit 命中 XSS；当前 npm 最新 6.1.0，应在兼容性验证后升级。
+- xlsx 0.18.5 存在 Prototype Pollution/ReDoS，audit 无自动修复版本；需核查实际使用并评估替换。
+- PptxGenJS 当前 4.0.1 的 image-size 依赖命中高危；应升级/覆盖 image-size 到已修复版本并做 PPT 生成回归。
