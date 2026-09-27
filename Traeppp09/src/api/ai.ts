@@ -1,7 +1,7 @@
 /**
  * AI智能分析API - 对接RuoYi后端
  */
-import { post, get } from './request'
+import { post, get, put } from './request'
 
 /** 自动健康评分 */
 export function calculateHealthScore(barnId: number): Promise<any> {
@@ -118,4 +118,9 @@ export function getHealthAnalysis(projectId: string): Promise<any> {
 /** 根据维修记录更新全部健康分与剩余寿命（续期/加分） */
 export function repairSyncHealthLife(data: any = {}): Promise<any> {
   return post('/barn/health-algo/repair-sync', data)
+}
+
+/** 更新健康分三维融合算法的管护制度/人工评价维度 */
+export function updateHealthScore3Dim(data: { projectId: string; manageMode?: string; manualEval?: string }): Promise<any> {
+  return put('/barn/health-algo/3dim', data)
 }

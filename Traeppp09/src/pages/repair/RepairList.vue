@@ -173,7 +173,7 @@ async function handleDelete(row: any) {
 
 /** 格式化金额 */
 function formatCost(val: number) {
-  return val != null && val !== '' ? `¥${Number(val).toLocaleString()}` : '-'
+  return val != null ? `¥${Number(val).toLocaleString()}` : '-'
 }
 
 /** 格式化数量+单位 */

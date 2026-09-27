@@ -29,6 +29,26 @@ public class HealthAlgoController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    /** 更新健康分三维融合算法的管护制度/人工评价维度 */
+    @PutMapping("/3dim")
+    public R<Void> updateHealthScore3Dim(@RequestBody Map<String, Object> payload) {
+        String projectId = payload == null ? null : String.valueOf(payload.getOrDefault("projectId", "")).trim();
+        if (projectId.isEmpty() || projectId.length() > 128) {
+            return R.fail("参数错误");
+        }
+        if (payload.containsKey("manageMode")) {
+            String manageMode = String.valueOf(payload.get("manageMode"));
+            if (!Arrays.asList("集中管护", "分户管护").contains(manageMode)) return R.fail("管护制度参数错误");
+            jdbcTemplate.update("UPDATE kf_basedata SET manage_mode = ? WHERE project_id = ?", manageMode, projectId);
+        }
+        if (payload.containsKey("manualEval")) {
+            String manualEval = String.valueOf(payload.get("manualEval"));
+            if (!Arrays.asList("好", "中", "差").contains(manualEval)) return R.fail("人工评价参数错误");
+            jdbcTemplate.update("UPDATE kf_basedata SET manual_eval = ? WHERE project_id = ?", manualEval, projectId);
+        }
+        return R.ok(null);
+    }
+
     // ======================== 健康分算法 ========================
 
     /**

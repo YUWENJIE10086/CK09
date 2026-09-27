@@ -60,7 +60,7 @@ const selectedRows = ref<any[]>([])
 /** 审核对话框 */
 const auditDialog = ref(false)
 const auditForm = reactive({
-  id: '',
+  id: '' as string,
   status: '',
   opinion: '',
 })

@@ -151,7 +151,7 @@ function handleDateClick(date: Date) {
 }
 
 /** 选择烤房 */
-function handleSelectBarn(barnId: number | null) {
+function handleSelectBarn(barnId: string | null) {
   selectedBarnId.value = barnId
 }
 

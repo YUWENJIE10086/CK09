@@ -1,5 +1,6 @@
 ﻿<script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { ElMessage } from 'element-plus'
 import { TrendCharts } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 import VChart from 'vue-echarts'
@@ -8,7 +9,7 @@ import { getBarnOptions } from '@/api/barn'
 
 // ========== 烤房选项 ==========
 const barnOptions = ref<{ label: string; value: string }[]>([])
-const selectedBarnId = ref<string | null>(null)
+const selectedBarnId = ref<number | null>(null)
 
 // ========== 评分结果 ==========
 const loading = ref(false)
