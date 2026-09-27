@@ -64,3 +64,9 @@ PR #9 已合并至 `main`（`6b531ab0a26a54e6acbb47527b60c7647b7131d2`）。新�
 - HS512 密钥强度改为 UTF-8 字节数校验，最低 64 字节。
 - Maven test/package/security baseline 均已通过。
 - 前端类型检查存在既有错误，另行纳入整改，不作为本轮后端安全修复失败依据。
+
+
+## V2.1.7 补充记录（2026-09-27）
+- 前端 12 项 TypeScript 错误已全部修复，CI frontend check/build 通过。
+- 新增健康分三维更新接口，参数白名单 + 参数化 SQL。
+- npm audit 当前仍为 17 项（7 moderate、10 high），进入下一轮专项依赖整改。

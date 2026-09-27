@@ -77,3 +77,15 @@
 - [ ] 前端 TypeScript check 全量通过（存在既有 12 项错误）
 - [ ] npm audit 依赖漏洞完成逐项处置
 - [ ] 生产环境 JWT_SECRET 实际值与启动校验验证
+
+
+## V2.1.7 复测记录（2026-09-27）
+- [x] 前端 12 项 TypeScript 错误全部修复
+- [x] frontend npm run check 通过
+- [x] frontend npm run build 通过
+- [x] backend Maven test/package 通过
+- [x] security baseline 通过
+- [x] npm audit 明细已进入 CI 日志
+- [ ] Vite/PostCSS/ECharts 等直接依赖升级
+- [ ] xlsx 实际使用面核查及替代方案评估
+- [ ] PptxGenJS/image-size 依赖链升级
