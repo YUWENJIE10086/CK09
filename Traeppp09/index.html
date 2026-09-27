@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>烤房管理平台</title>
+    <script>
+      // 在所有模块加载前拦截 ECharts 内部无害错误
+      (function() {
+        var origError = console.error;
+        console.error = function() {
+          var msg = Array.prototype.map.call(arguments, function(a) {
+            if (typeof a === 'string') return a;
+            if (a && a.message) return a.message;
+            try { return String(a); } catch(e) { return ''; }
+          }).join(' ');
+          if (msg.indexOf("Cannot read properties of undefined (reading 'id')") !== -1) {
+            return;
+          }
+          return origError.apply(console, arguments);
+        };
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

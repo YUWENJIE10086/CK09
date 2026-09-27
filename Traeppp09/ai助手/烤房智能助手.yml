@@ -1,0 +1,442 @@
+app:
+  description: 基于自然语言的烤房系统数据查询与分析助手
+  icon: f3780b1d-ae8f-4842-a446-1d95d194a320
+  icon_background: ''
+  icon_type: image
+  mode: advanced-chat
+  name: 烤房智能助手
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/ollama:0.1.4@795e94415da0ef3713d23726be045e96dcb64b63bba16e9c1b426329f66f6e40
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 20
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInLoop: false
+        sourceType: start
+        targetType: llm
+      id: 1786355165948-source-llm-target
+      source: '1786355165948'
+      sourceHandle: source
+      target: llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: llm-source-1786535096306-target
+      source: llm
+      sourceHandle: source
+      target: '1786535096306'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: llm
+      id: 1786535483977-source-1786535769549-target
+      source: '1786535483977'
+      sourceHandle: source
+      target: '1786535769549'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1786535769549-source-1786535859708-target
+      source: '1786535769549'
+      sourceHandle: source
+      target: '1786535859708'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: 1786535096306-source-1786535483977-target
+      source: '1786535096306'
+      sourceHandle: source
+      target: '1786535483977'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: '你是烤房项目系统的智能数据助手。你的职责是：
+
+          1. 理解用户关于烤房系统的问题
+
+          2. 根据数据库表结构生成安全的只读SQL查询语句
+
+          3. 调用后端API执行SQL查询
+
+          4. 将查询结果用自然语言清晰回答用户
+
+
+          重要规则：
+
+          - 只能生成SELECT查询语句，禁止生成INSERT/UPDATE/DELETE/DROP等修改数据的语句
+
+          - SQL中的表名和字段名必须与知识库中的Schema完全一致
+
+          - 如果用户的问题与烤房系统无关，礼貌告知你只能回答烤房系统相关问题
+
+          - 回答时使用中文，数据用表格或列表形式展示更清晰'
+        selected: false
+        title: 用户输入
+        type: start
+        variables: []
+      height: 373
+      id: '1786355165948'
+      position:
+        x: 76.87899726859058
+        y: 277.8386630247874
+      positionAbsolute:
+        x: 76.87899726859058
+        y: 277.8386630247874
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - sys
+          - query
+        memory:
+          query_prompt_template: ''
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-r1:14b
+          provider: langgenius/ollama/ollama
+        prompt_template:
+        - id: 1eacd541-696a-4815-869d-289e0ef50ce6
+          role: system
+          text: '你是烤房管理系统的查询解析助手。请分析用户的问题，提取查询参数，输出 JSON 格式。
+
+
+            参数说明：
+
+            - action: 查询类型，可选值：barns(列表查询)、stats(按县统计)、overview(全局概览)、detail(按编号查详情)
+
+            - county: 县名（如"秭归"、"兴山"），没有则为空字符串
+
+            - use_status: 使用状态（空闲/在烤/转用/损毁），没有则为空字符串
+
+            - health_level: 健康等级（优良/良好/一般/预警/危险/低于60），没有则为空字符串
+
+            - life_condition: 寿命条件（不足5年/不足10年/不足3年），没有则为空字符串
+
+            - projectId: 项目编号（如25-420527KF00099），没有则为空字符串
+
+
+            判断规则：
+
+            1. 用户提到具体项目编号（格式：数字-数字KF数字）→ action="detail"，填入 projectId
+
+            2. 用户问"有多少""几个""统计" → action="overview"或"stats"
+
+            3. 用户问"哪些""列表" → action="barns"
+
+            4. 用户提到某县 → 填入 county
+
+            5. 用户提到空闲/闲置 → use_status="空闲"
+
+            6. 用户提到健康/危险 → health_level 对应值
+
+            7. 用户提到寿命/还能用几年 → life_condition 对应值
+
+
+            只输出 JSON，不要输出其他内容。示例：
+
+            用户问"秭归县有多少空闲的烤房？"
+
+            输出：{"action":"stats","county":"秭归","use_status":"空闲","health_level":"","life_condition":"","projectId":""}
+
+
+            用户问"25-420527KF00099的烤房信息"
+
+            输出：{"action":"detail","county":"","use_status":"","health_level":"","life_condition":"","projectId":"25-420527KF00099"}
+
+
+            用户问"健康分低于60的烤房有哪些？"
+
+            输出：{"action":"barns","county":"","use_status":"","health_level":"低于60","life_condition":"","projectId":""}'
+        - id: 4fbd5152-890b-40c5-867e-66938ee3a5dc
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: LLM-意图解析
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: llm
+      position:
+        x: 373
+        y: 259.9193315123937
+      positionAbsolute:
+        x: 373
+        y: 259.9193315123937
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nfrom urllib.parse import quote\n\n\ndef main(llm_output:\
+          \ str) -> dict:\n    text = llm_output or \"\"\n\n    # 从 LLM 输出中提取 JSON\n\
+          \    try:\n        start = text.find(\"{\")\n        end = text.rfind(\"\
+          }\")\n        if start != -1 and end != -1:\n            data = json.loads(text[start:end\
+          \ + 1])\n        else:\n            data = {}\n    except Exception:\n \
+          \       data = {}\n\n    # 提取参数\n    action = data.get(\"action\", \"barns\"\
+          )\n    county = data.get(\"county\", \"\")\n    use_status = data.get(\"\
+          use_status\", \"\")\n    health_level = data.get(\"health_level\", \"\"\
+          )\n    life_condition = data.get(\"life_condition\", \"\")\n    project_id\
+          \ = data.get(\"projectId\", \"\")\n\n    # 后端 API 基础地址\n    # 如果 Dify 在\
+          \ Docker 里，把 localhost 换成 host.docker.internal\n    # 如果在远程服务器，换成实际 IP\n\
+          \    base = \"http://10.69.131.28:8082/barn/ai-query\"\n\n    # 根据 action\
+          \ 拼接不同的 API URL\n    if action == \"detail\" and project_id:\n        url\
+          \ = f\"{base}/detail?projectId={quote(project_id)}\"\n\n    elif action\
+          \ == \"overview\":\n        url = f\"{base}/overview\"\n\n    elif action\
+          \ == \"stats\":\n        url = f\"{base}/stats\"\n        if county:\n \
+          \           url += f\"?county={quote(county)}\"\n\n    else:  # barns\n\
+          \        params = []\n        if county:\n            params.append(f\"\
+          county={quote(county)}\")\n        if use_status:\n            params.append(f\"\
+          useStatus={quote(use_status)}\")\n        if health_level:\n           \
+          \ params.append(f\"healthLevel={quote(health_level)}\")\n        if life_condition:\n\
+          \            params.append(f\"lifeCondition={quote(life_condition)}\")\n\
+          \        params.append(\"limit=500000\")\n        url = f\"{base}/barns?\"\
+          \ + \"&\".join(params)\n\n    return {\n        \"url\": url,\n        \"\
+          action\": action\n    }"
+        code_language: python3
+        outputs:
+          action:
+            children: null
+            type: string
+          url:
+            children: null
+            type: string
+        selected: false
+        title: 代码节点 — 拼接 URL
+        type: code
+        variables:
+        - value_selector:
+          - llm
+          - text
+          value_type: string
+          variable: llm_output
+      height: 52
+      id: '1786535096306'
+      position:
+        x: 677.9596657561968
+        y: 379.91933151239374
+      positionAbsolute:
+        x: 677.9596657561968
+        y: 379.91933151239374
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data: []
+          type: none
+        headers: Content-Type:application/json
+        method: get
+        params: ''
+        retry_config:
+          max_retries: 3
+          retry_enabled: true
+          retry_interval: 100
+        selected: false
+        ssl_verify: true
+        timeout:
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+        title: HTTP请求
+        type: http-request
+        url: '{{#1786535096306.url#}}'
+        variables: []
+      height: 124
+      id: '1786535483977'
+      position:
+        x: 1132.1515346485437
+        y: 251.44367668183463
+      positionAbsolute:
+        x: 1132.1515346485437
+        y: 251.44367668183463
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-r1:14b
+          provider: langgenius/ollama/ollama
+        prompt_template:
+        - id: e69f2bc4-b116-4d4b-9986-2c87d397fded
+          role: system
+          text: '你是烤房管理系统的 AI 助手。
+
+            你会收到一段 JSON 数据和用户的原始问题，请根据 JSON 数据用自然语言回答。
+
+
+            回复规则：
+
+            1. 如果 JSON 包含 "found": true 和 "data" 对象，说明是单个烤房详情查询，逐项列出该烤房的所有字段信息
+
+            2. 如果 JSON 包含 "total" 和 "data" 数组，说明是列表查询，先说总数，再列出前5-10条
+
+            3. 如果 JSON 包含 "grand_total"，说明是统计查询，用列表展示各县数据
+
+            4. 如果 JSON 包含 "use_status_dist"，说明是概览查询，用简洁文字总结关键数字
+
+            5. 如果 "found": false，告知用户未找到该烤房
+
+            6. use_status 字段值已是中文（在烤/空闲），直接使用
+
+            7. 健康分和寿命保留一位小数
+
+            8. 回答要简洁明了，不要重复原始 JSON
+
+
+            用户问题：{{#sys.query#}}
+
+
+            API返回数据：
+
+            {{#1786535483977.body#}}'
+        - id: 772f23bd-83c4-40df-8f41-a978aaeb13a8
+          role: user
+          text: 变量引用：{{#sys.query#}}是用户原始问题，{{#1786535483977.body#}} 是 HTTP 请求节点返回的响应体。在
+            Dify 中，变量引用方式是 /，你需要根据实际节点 ID 替换。
+        selected: false
+        title: LLM节点 — 格式化回复
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: '1786535769549'
+      position:
+        x: 1469.5228989378509
+        y: 210.87064117351179
+      positionAbsolute:
+        x: 1469.5228989378509
+        y: 210.87064117351179
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#1786535769549.text#}}'
+        selected: false
+        title: 直接回复 2
+        type: answer
+        variables: []
+      height: 103
+      id: '1786535859708'
+      position:
+        x: 1807.9345974709602
+        y: 229.59665756196853
+      positionAbsolute:
+        x: 1807.9345974709602
+        y: 229.59665756196853
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: 10.401221104398246
+      y: -13.203324195754135
+      zoom: 0.9093754727645201
+  rag_pipeline_variables: []
