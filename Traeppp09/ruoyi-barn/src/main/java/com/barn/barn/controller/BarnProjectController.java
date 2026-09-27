@@ -5,6 +5,7 @@ import com.barn.barn.entity.BarnProject;
 import com.barn.barn.service.BarnProjectService;
 import com.barn.common.core.domain.R;
 import com.barn.common.core.domain.TableDataInfo;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/barn/project")
+@PreAuthorize("hasRole('ADMIN')")
 public class BarnProjectController {
 
     @Autowired
