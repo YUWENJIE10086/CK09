@@ -52,3 +52,8 @@ PR #5 已合并至 `main`（`9db9903d3b3d516ac129ecad3dd634b20816f03d`）。
 ## V2.1.4 继续整改（2026-09-27）
 
 PR #7 已合并至 `main`（`e4aa8e8c496434940c50f2c094a984aa7d9b6975`）。BakerController、BarnProjectController、FarmerController 不再直接向客户端返回 `Exception.getMessage()`，改为统一业务错误提示，降低后端实现细节泄露风险。
+
+
+## V2.1.5 继续整改（2026-09-27）
+
+PR #9 已合并至 `main`（`6b531ab0a26a54e6acbb47527b60c7647b7131d2`）。新增 JWT_SECRET 最低 64 字符启动门禁，并移除 MyBatis StdOut SQL 日志实现。部署环境需同步配置强 JWT_SECRET。
