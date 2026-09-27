@@ -57,3 +57,10 @@ PR #7 已合并至 `main`（`e4aa8e8c496434940c50f2c094a984aa7d9b6975`）。Bake
 ## V2.1.5 继续整改（2026-09-27）
 
 PR #9 已合并至 `main`（`6b531ab0a26a54e6acbb47527b60c7647b7131d2`）。新增 JWT_SECRET 最低 64 字符启动门禁，并移除 MyBatis StdOut SQL 日志实现。部署环境需同步配置强 JWT_SECRET。
+
+
+## V2.1.6 补充整改记录（2026-09-27）
+- JJWT 0.9.1 → 0.13.0，完成新版 API 迁移。
+- HS512 密钥强度改为 UTF-8 字节数校验，最低 64 字节。
+- Maven test/package/security baseline 均已通过。
+- 前端类型检查存在既有错误，另行纳入整改，不作为本轮后端安全修复失败依据。
