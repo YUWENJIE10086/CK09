@@ -8,6 +8,7 @@ import com.barn.barn.mapper.RepairRecordMapper;
 import com.barn.common.core.domain.R;
 import com.barn.common.core.domain.TableDataInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +20,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/barn/repair")
+@PreAuthorize("hasRole('ADMIN')")
 public class RepairRecordController {
 
     @Autowired
