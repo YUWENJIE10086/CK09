@@ -99,7 +99,7 @@ export function del<T = any>(url: string, params?: any, config?: AxiosRequestCon
 
 /** 下载文件 */
 export function download<T = any>(url: string, params?: any, config?: AxiosRequestConfig): Promise<T> {
-  return service.get(url, { params, ...config }, { responseType: 'blob' })
+  return service.get(url, { params, responseType: 'blob', ...config })
 }
 
 export default service
