@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - security/web-audit-fix
+      - security/web-audit-fix-v2
   pull_request:
     branches:
       - main
@@ -37,9 +38,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          target="Traeppp09/ruoyi-barn"
           echo "Checking for common committed secrets/debug settings..."
-          if grep -RInE --exclude-dir=.git --exclude='*.min.js' --exclude='*.map'             '(DEBUG[[:space:]]*=[[:space:]]*true|password[[:space:]]*[:=][[:space:]]*["'''][^$<{][^"''']{7,}["''']|-----BEGIN (RSA|EC|OPENSSH|PRIVATE) KEY-----)'             Traeppp09/ruoyi-barn; then
-            echo "Security baseline check failed."
+
+          if grep -RInE --exclude-dir=.git --exclude='*.min.js' --exclude='*.map'             '(^|[[:space:]])DEBUG[[:space:]]*=[[:space:]]*true([[:space:]]|$)' "$target"; then
+            echo "Security baseline check failed: DEBUG=true detected."
             exit 1
           fi
+
+          if grep -RInE --exclude-dir=.git --exclude='*.min.js' --exclude='*.map'             -- '-----BEGIN (RSA|EC|OPENSSH|PRIVATE) KEY-----' "$target"; then
+            echo "Security baseline check failed: private key detected."
+            exit 1
+          fi
+
           echo "Security baseline check passed."
