@@ -49,7 +49,6 @@ public class SecurityConfig {
             .and()
             .authorizeRequests()
             .antMatchers("/login", "/captchaImage", "/register", "/api/login", "/api/logout").permitAll()
-            .antMatchers("/upload/**").permitAll()
             .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .anyRequest().authenticated()
             .and()
