@@ -178,7 +178,7 @@ public class BakerController {
             );
             return R.ok("添加成功");
         } catch (Exception e) {
-            return R.fail("添加失败: " + e.getMessage());
+            return R.fail("添加失败，请稍后重试");
         }
     }
 
@@ -207,7 +207,7 @@ public class BakerController {
             );
             return R.ok("更新成功");
         } catch (Exception e) {
-            return R.fail("更新失败: " + e.getMessage());
+            return R.fail("更新失败，请稍后重试");
         }
     }
 
@@ -224,7 +224,7 @@ public class BakerController {
                 return R.fail("删除失败，烘烤师不存在");
             }
         } catch (Exception e) {
-            return R.fail("删除失败: " + e.getMessage());
+            return R.fail("删除失败，请稍后重试");
         }
     }
 
@@ -244,7 +244,7 @@ public class BakerController {
             }
             return R.ok("成功删除" + count + "条记录");
         } catch (Exception e) {
-            return R.fail("批量删除失败: " + e.getMessage());
+            return R.fail("批量删除失败，请稍后重试");
         }
     }
 }
