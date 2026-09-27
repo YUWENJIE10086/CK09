@@ -148,6 +148,21 @@ public class ImageController {
         if (!candidate.startsWith(basePath)) {
             return null;
         }
+
+        // 仅做规范化仍无法阻止“上传目录内符号链接 -> 上传目录外”的逃逸。
+        // 对实际存在的目标和上传根目录分别解析 real path，再做一次边界校验。
+        try {
+            if (Files.exists(candidate)) {
+                Path realBasePath = basePath.toRealPath();
+                Path realCandidate = candidate.toRealPath();
+                if (!realCandidate.startsWith(realBasePath)) {
+                    return null;
+                }
+            }
+        } catch (IOException e) {
+            return null;
+        }
+
         return candidate.toFile();
     }
 
