@@ -3,8 +3,11 @@ package com.barn.barn.controller;
 import com.barn.common.core.domain.R;
 import com.barn.common.core.domain.TableDataInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -15,7 +18,13 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/barn/health-algo")
+@PreAuthorize("hasRole('ADMIN')")
 public class HealthAlgoController {
+
+    private static final Set<String> HEALTH_ALGOS = Collections.unmodifiableSet(
+            new HashSet<>(Arrays.asList("bmhi", "fche", "topsis", "cdci", "crhe")));
+    private static final Set<String> LIFE_ALGOS = Collections.unmodifiableSet(
+            new HashSet<>(Arrays.asList("edrl", "wrrl", "bdrl", "gple")));
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -86,7 +95,7 @@ public class HealthAlgoController {
      */
     @PostMapping("/apply")
     public R<Map<String, Object>> applyHealthAlgo(@RequestBody Map<String, Object> params) {
-        String algo = String.valueOf(params.getOrDefault("algo", "bmhi")).toLowerCase();
+        String algo = requireHealthAlgo(String.valueOf(params.getOrDefault("algo", "bmhi")));
         int currentYear = java.time.LocalDate.now().getYear();
 
         // 获取自定义参数
@@ -150,7 +159,8 @@ public class HealthAlgoController {
             @RequestParam(required = false) String county,
             @RequestParam(required = false) String keyword) {
         
-        String column = "health_" + algo.toLowerCase();
+        String normalizedAlgo = requireHealthAlgo(algo);
+        String column = "health_" + normalizedAlgo;
         StringBuilder where = new StringBuilder("WHERE 1=1");
         List<Object> params = new ArrayList<>();
         if (county != null && !county.isEmpty()) {
@@ -188,7 +198,7 @@ public class HealthAlgoController {
             Object score = row.get("health_score");
             m.put("healthScore", score != null ? ((Number) score).doubleValue() : null);
             m.put("healthLevel", score != null ? getHealthLevel(((Number) score).doubleValue()) : "未计算");
-            m.put("algo", algo);
+            m.put("algo", normalizedAlgo);
             result.add(m);
         }
         return TableDataInfo.build(result, total, pageNum, pageSize);
@@ -199,7 +209,8 @@ public class HealthAlgoController {
      */
     @GetMapping("/stats")
     public R<Map<String, Object>> stats(@RequestParam(defaultValue = "bmhi") String algo) {
-        String column = "health_" + algo.toLowerCase();
+        String normalizedAlgo = requireHealthAlgo(algo);
+        String column = "health_" + normalizedAlgo;
         Map<String, Object> result = new LinkedHashMap<>();
         
         Map<String, Object> totalRow = jdbcTemplate.queryForMap(
@@ -222,7 +233,7 @@ public class HealthAlgoController {
             "ELSE '未计算' END as level, COUNT(*) as cnt " +
             "FROM kf_basedata GROUP BY level ORDER BY cnt DESC");
         result.put("distribution", distribution);
-        result.put("algo", algo);
+        result.put("algo", normalizedAlgo);
         return R.ok(result);
     }
 
@@ -457,7 +468,7 @@ public class HealthAlgoController {
      */
     @PostMapping("/life-apply")
     public R<Map<String, Object>> applyLifeAlgo(@RequestBody Map<String, Object> params) {
-        String algo = String.valueOf(params.getOrDefault("algo", "bdrl")).toLowerCase();
+        String algo = requireLifeAlgo(String.valueOf(params.getOrDefault("algo", "bdrl")));
         int currentYear = java.time.LocalDate.now().getYear();
 
         double eta = toDouble(params.get("eta"), 25);
@@ -516,7 +527,8 @@ public class HealthAlgoController {
             @RequestParam(required = false) String county,
             @RequestParam(required = false) String keyword) {
         
-        String column = "life_" + algo.toLowerCase();
+        String normalizedAlgo = requireLifeAlgo(algo);
+        String column = "life_" + normalizedAlgo;
         StringBuilder where = new StringBuilder("WHERE 1=1");
         List<Object> params = new ArrayList<>();
         if (county != null && !county.isEmpty()) {
@@ -566,7 +578,8 @@ public class HealthAlgoController {
      */
     @GetMapping("/life-stats")
     public R<Map<String, Object>> lifeStats(@RequestParam(defaultValue = "bdrl") String algo) {
-        String column = "life_" + algo.toLowerCase();
+        String normalizedAlgo = requireLifeAlgo(algo);
+        String column = "life_" + normalizedAlgo;
         Map<String, Object> result = new LinkedHashMap<>();
         
         Map<String, Object> totalRow = jdbcTemplate.queryForMap(
@@ -590,6 +603,22 @@ public class HealthAlgoController {
         result.put("distribution", distribution);
         result.put("algo", algo);
         return R.ok(result);
+    }
+
+    private String requireHealthAlgo(String algo) {
+        String normalized = algo == null ? "" : algo.trim().toLowerCase(Locale.ROOT);
+        if (!HEALTH_ALGOS.contains(normalized)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "不支持的健康算法");
+        }
+        return normalized;
+    }
+
+    private String requireLifeAlgo(String algo) {
+        String normalized = algo == null ? "" : algo.trim().toLowerCase(Locale.ROOT);
+        if (!LIFE_ALGOS.contains(normalized)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "不支持的寿命算法");
+        }
+        return normalized;
     }
 
     // ======================== 核心算法实现 ========================

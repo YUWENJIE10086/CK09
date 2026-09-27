@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
+import com.barn.common.security.LoginAttemptService;
 
 /**
  * 登录Controller
@@ -30,12 +31,18 @@ public class LoginController {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
+    private LoginAttemptService loginAttemptService;
+
     @PostMapping("/login")
     public R<Map<String, Object>> login(@RequestBody Map<String, String> param) {
         String username = param.get("username");
         String password = param.get("password");
         if (username == null || username.isBlank() || password == null || password.isEmpty()) {
             return R.fail(401, "用户名或密码错误");
+        }
+        if (loginAttemptService.isLocked(username)) {
+            return R.fail(429, "登录失败次数过多，请稍后再试");
         }
 
         SysUser user = sysUserService.getByUserName(username);
@@ -44,13 +51,16 @@ public class LoginController {
         }
         try {
             if (!passwordEncoder.matches(password, user.getPassword())) {
+                loginAttemptService.recordFailure(username);
                 return R.fail(401, "用户名或密码错误");
             }
         } catch (Exception ex) {
+            loginAttemptService.recordFailure(username);
             return R.fail(401, "用户名或密码错误");
         }
 
-        String token = jwtUtil.generateToken(user.getId(), user.getUserName());
+        loginAttemptService.recordSuccess(username);
+        String token = jwtUtil.generateToken(user.getId(), user.getUserName(), user.getUserType());
 
         Map<String, Object> data = new HashMap<>();
         data.put("token", token);

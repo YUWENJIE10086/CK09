@@ -2,7 +2,6 @@ package com.barn.common.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -16,16 +15,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Value("${upload.path:d:/云盘/MyWeb/烤房项目/upload/}")
     private String uploadPath;
-
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOriginPatterns("*")
-                .allowedMethods("*")
-                .allowedHeaders("*")
-                .allowCredentials(true)
-                .maxAge(3600);
-    }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

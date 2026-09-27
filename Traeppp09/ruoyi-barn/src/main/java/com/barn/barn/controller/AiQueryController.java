@@ -1,6 +1,7 @@
 package com.barn.barn.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +15,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/barn/ai-query")
+@PreAuthorize("hasAnyRole('ADMIN', 'AI_QUERY')")
 public class AiQueryController {
 
     @Autowired

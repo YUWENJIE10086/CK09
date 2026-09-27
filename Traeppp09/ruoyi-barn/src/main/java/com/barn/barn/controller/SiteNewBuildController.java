@@ -3,6 +3,7 @@ package com.barn.barn.controller;
 import com.barn.common.core.domain.R;
 import com.barn.common.core.domain.TableDataInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/site-new-build")
+@PreAuthorize("hasRole('ADMIN')")
 public class SiteNewBuildController {
 
     @Autowired

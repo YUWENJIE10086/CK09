@@ -1,0 +1,29 @@
+name: Web backend build check
+
+on:
+  push:
+    branches:
+      - security/web-audit-fix
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Traeppp09/ruoyi-barn
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Maven test
+        run: mvn -B test
+      - name: Maven package
+        run: mvn -B -DskipTests package
