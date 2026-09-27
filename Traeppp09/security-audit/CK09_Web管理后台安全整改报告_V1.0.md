@@ -47,3 +47,8 @@ PR #5 已合并至 `main`（`9db9903d3b3d516ac129ecad3dd634b20816f03d`）。
 - 登录失败计数的用户名规范化改为 `Locale.ROOT`，保持跨运行环境一致。
 
 这两项均属于低风险代码加固，不替代生产环境和第三方安全复测。
+
+
+## V2.1.4 继续整改（2026-09-27）
+
+PR #7 已合并至 `main`（`e4aa8e8c496434940c50f2c094a984aa7d9b6975`）。BakerController、BarnProjectController、FarmerController 不再直接向客户端返回 `Exception.getMessage()`，改为统一业务错误提示，降低后端实现细节泄露风险。
