@@ -9,6 +9,7 @@ import com.barn.barn.mapper.FarmerMapper;
 import com.barn.common.core.domain.R;
 import com.barn.common.core.domain.TableDataInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +33,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/farmer")
+@PreAuthorize("hasRole('ADMIN')")
 public class FarmerController {
 
     @Autowired
