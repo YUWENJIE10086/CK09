@@ -31,11 +31,6 @@ CREATE TABLE sys_user (
   KEY idx_username (user_name)
 ) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO sys_user (user_id, dept_id, user_name, nick_name, user_type, password, status, remark) VALUES
-(1, 1, 'admin', '系统管理员', '00', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '系统管理员'),
-(2, 2, 'coop01', '合作社管理员', '00', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '合作社账号'),
-(3, 3, 'tech01', '技术员', '00', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '技术维护人员'),
-(4, 4, 'farmer01', '烟农01', '00', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '普通烟农用户');
 
 -- 2. 市表
 CREATE TABLE sys_city (
