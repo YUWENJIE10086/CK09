@@ -1,8 +1,9 @@
-name: Web backend build check
+name: Web backend build and security check
 
 on:
   push:
     branches:
+      - main
       - security/web-audit-fix
   pull_request:
     branches:
@@ -17,13 +18,28 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
           cache: maven
+
       - name: Maven test
         run: mvn -B test
+
       - name: Maven package
         run: mvn -B -DskipTests package
+
+      - name: Security baseline scan
+        working-directory: .
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Checking for common committed secrets/debug settings..."
+          if grep -RInE --exclude-dir=.git --exclude='*.min.js' --exclude='*.map'             '(DEBUG[[:space:]]*=[[:space:]]*true|password[[:space:]]*[:=][[:space:]]*["'''][^$<{][^"''']{7,}["''']|-----BEGIN (RSA|EC|OPENSSH|PRIVATE) KEY-----)'             Traeppp09/ruoyi-barn; then
+            echo "Security baseline check failed."
+            exit 1
+          fi
+          echo "Security baseline check passed."
