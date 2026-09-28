@@ -1,6 +1,7 @@
 package com.barn.common.security;
 
 import org.springframework.beans.factory.annotation.Value;
+import javax.annotation.PostConstruct;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +27,14 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
     private String configuredApiKey;
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
+
+    @PostConstruct
+    public void validateConfiguration() {
+        if (configuredApiKey != null && !configuredApiKey.isBlank()
+                && configuredApiKey.getBytes(StandardCharsets.UTF_8).length < 32) {
+            throw new IllegalStateException("security.ai-query.api-key must be at least 32 UTF-8 bytes when configured");
+        }
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
