@@ -101,3 +101,31 @@ PR #9 已合并至 `main`（`6b531ab0a26a54e6acbb47527b60c7647b7131d2`）。新�
 **代码整改成熟度：较高；完整代码审计状态：未通过/待最终复测。**
 
 这里的“未通过”仅表示尚未满足完整审计的证据与风险闭环门槛，不代表已发现新的同等级代码漏洞。完成上述三个阻断项后，再进行最终复测并更新为正式审计结论。
+
+
+## V2.1.10 Web 专项状态更新（2026-09-28）
+
+本版本明确将整改范围限定为 Web 管理后台：Spring Boot 后端、Vue/Vite 前端、Web API、Web 配置及 Web 依赖。微信小程序/独立 Flask 服务不参与当前 Web 端结论。
+
+### 本轮代码整改
+
+- FarmerAlgoController 移除导入异常路径中的 System.out.println(... + e.getMessage())，不再把异常实现细节写入标准输出。
+- SecurityConfig 增加 X-Frame-Options: DENY。
+- ApiKeyAuthenticationFilter 对配置的 AI Query API Key 增加最低 32 UTF-8 字节启动门禁。
+- ImageController 增加图片文件大小、尺寸、像素数量限制，并继续执行路径/real-path 边界校验。
+- FarmerAlgoController 分页 LIMIT/OFFSET 使用参数化查询，并增加页码/页大小边界。
+
+### 当前 Web 端未闭环事项
+
+| 项目 | 状态 |
+|---|---|
+| 原 3.10–3.17 核心代码整改 | 基本完成 |
+| 异常信息 stdout 泄露 | 本轮已修复 |
+| SQL 全量二次扫描 | 待完成 |
+| API 对象级授权/IDOR 黑盒 | 待完成 |
+| npm 17 项依赖漏洞 | 待专项处置 |
+| Swagger/Actuator 暴露 | 待检查 |
+| 前端 XSS/Secret | 待专项检查 |
+| 生产黑盒/第三方 SAST/人工渗透 | 待执行 |
+
+**结论：当前属于“Web 代码整改成熟度较高、完整审计证据尚未闭环”，不宣称最终通过。**
