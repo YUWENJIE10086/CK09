@@ -27,6 +27,9 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @RequestMapping("/api/image")
 public class ImageController {
+    private static final long MAX_IMAGE_BYTES = 10L * 1024 * 1024;
+    private static final int MAX_IMAGE_DIMENSION = 8000;
+    private static final long MAX_IMAGE_PIXELS = 25_000_000L;
 
     @Value("${upload.path:d:/云盘/MyWeb/烤房项目/upload/}")
     private String uploadPath;
@@ -50,6 +53,10 @@ public class ImageController {
         File originalFile = resolveOriginalFile(path);
         if (originalFile == null || !originalFile.exists() || !originalFile.isFile()) {
             return ResponseEntity.notFound().build();
+        }
+        // 防止超大压缩文件/图片触发异常的磁盘、CPU 或堆内存消耗。
+        if (originalFile.length() > MAX_IMAGE_BYTES) {
+            return ResponseEntity.status(413).build();
         }
 
         // 缩略图缓存目录
@@ -78,6 +85,11 @@ public class ImageController {
 
             int origW = original.getWidth();
             int origH = original.getHeight();
+            if (origW <= 0 || origH <= 0
+                    || origW > MAX_IMAGE_DIMENSION || origH > MAX_IMAGE_DIMENSION
+                    || (long) origW * origH > MAX_IMAGE_PIXELS) {
+                return ResponseEntity.status(413).build();
+            }
 
             // 按比例缩放，取较短边
             int targetW, targetH;
