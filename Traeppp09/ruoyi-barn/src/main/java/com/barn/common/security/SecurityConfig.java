@@ -52,10 +52,7 @@ public class SecurityConfig {
             .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .anyRequest().authenticated()
             .and()
-            .headers()
-            .frameOptions().deny()
-            .contentTypeOptions()
-            .referrerPolicy().policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER);
+            .headers().frameOptions().deny();
 
         http.addFilterBefore(apiKeyAuthenticationFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthenticationFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
