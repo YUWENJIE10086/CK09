@@ -92,3 +92,20 @@ PR #9 已合并。JWT 配置现在具备启动期密钥长度和有效期校验�
 **代码整改成熟度：较高；完整代码审计状态：未通过/待最终复测。**
 
 这里的“未通过”仅表示尚未满足完整审计的证据与风险闭环门槛，不代表已发现新的同等级代码漏洞。完成上述三个阻断项后，再进行最终复测并更新为正式审计结论。
+
+
+## V2.1.10 Web 专项边界与新增发现（2026-09-28）
+
+本版本进一步明确：当前专项只审 Web 管理后台，不把微信小程序/独立 Flask 服务作为整改对象或 Web 阻断项。
+
+### 新增实际发现与处置
+
+- FarmerAlgoController 导入异常路径存在 System.out.println("导入答题失败: " + e.getMessage())，本轮已删除异常消息输出。
+- FarmerAlgoController 分页查询现使用参数化 LIMIT ? OFFSET ?，并限制 pageNum/pageSize 边界。
+- ImageController 增加文件大小、图片尺寸及像素总量限制，降低图片解码资源耗尽风险。
+- SecurityConfig 增加 X-Frame-Options: DENY。
+- ApiKeyAuthenticationFilter 增加 API Key 最低 32 UTF-8 字节配置门禁。
+
+### 后续专项
+
+继续进行全项目 SQL 注入、异常泄露、文件上传/下载、API 对象级授权、前端 XSS/Secret、Swagger/Actuator 暴露以及依赖漏洞复核。所有“已修复”结论以实际代码或可复核 CI/黑盒证据为准。
