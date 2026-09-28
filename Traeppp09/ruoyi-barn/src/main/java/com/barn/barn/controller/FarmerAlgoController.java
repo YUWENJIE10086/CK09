@@ -78,7 +78,8 @@ public class FarmerAlgoController {
                 );
                 success++;
             } catch (Exception e) {
-                System.out.println("导入答题失败: " + e.getMessage());
+                // 不向标准输出或接口响应暴露数据库/实现细节；失败行仅计入失败数。
+                // 生产环境应由统一日志组件按需记录异常堆栈并配合脱敏策略。
             }
         }
         result.put("success", success);
