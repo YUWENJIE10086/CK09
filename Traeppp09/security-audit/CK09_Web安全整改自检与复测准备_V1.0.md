@@ -120,3 +120,35 @@
 **代码整改成熟度：较高；完整代码审计状态：未通过/待最终复测。**
 
 这里的“未通过”仅表示尚未满足完整审计的证据与风险闭环门槛，不代表已发现新的同等级代码漏洞。完成上述三个阻断项后，再进行最终复测并更新为正式审计结论。
+
+
+## V2.1.10 Web 专项复测更新（2026-09-28）
+
+### 本轮已完成代码检查/整改
+
+- [x] FarmerAlgoController 导入异常不再向 stdout 输出 Exception.getMessage()
+- [x] FarmerAlgoController 分页 LIMIT/OFFSET 参数化
+- [x] FarmerAlgoController pageNum/pageSize 边界限制
+- [x] ImageController 图片文件大小限制
+- [x] ImageController 图片尺寸/像素限制
+- [x] ImageController 路径 normalize + real-path 边界
+- [x] SecurityConfig X-Frame-Options: DENY
+- [x] AI Query API Key 最低长度启动门禁
+
+### 当前待复测
+
+- [ ] 全项目 SQL 动态 SQL / \${} / 字符串拼接专项
+- [ ] 全 Web API 认证与对象级授权矩阵
+- [ ] 图片对象级授权
+- [ ] Swagger/OpenAPI 暴露检查
+- [ ] Actuator 暴露检查
+- [ ] 前端 XSS sink 检查
+- [ ] 前端 Secret/Token 暴露检查
+- [ ] npm 17 项漏洞专项处置
+- [ ] 登录失败锁定在多实例环境的架构验证
+- [ ] 生产环境黑盒验证
+- [ ] 独立 SAST/人工渗透复测
+
+### 范围说明
+
+微信小程序/独立 Flask 服务不纳入本轮 Web 端整改结论。当前 Web 专项不因原 3.1–3.9 未定位而判定失败；如未来需要审计小程序，应单独建立审计范围、证据和报告。
