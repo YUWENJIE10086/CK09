@@ -185,12 +185,14 @@ public class FarmerAlgoController {
         if (notBlank(keyword)) { where.append(" AND (farmer_name LIKE ? OR question LIKE ?)"); params.add("%" + keyword + "%"); params.add("%" + keyword + "%"); }
 
         Long total = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM farmer_question" + where, Long.class, params.toArray());
-        int offset = (pageNum - 1) * pageSize;
+        pageNum = safePageNum(pageNum);
+        pageSize = safePageSize(pageSize);
+        long offset = ((long) pageNum - 1L) * pageSize;
         List<Map<String, Object>> list = jdbcTemplate.queryForList(
                 "SELECT id, paper_id AS paperId, farmer_name AS farmerName, farmer_phone AS farmerPhone, county, township, village," +
                         " pound_group AS poundGroup, dim, question_no AS questionNo, question, answer, key_ind AS keyInd, correct, survey_date AS surveyDate" +
-                        " FROM farmer_question" + where + " ORDER BY village, farmer_name, question_no LIMIT " + pageSize + " OFFSET " + offset,
-                params.toArray());
+                        " FROM farmer_question" + where + " ORDER BY village, farmer_name, question_no LIMIT ? OFFSET ?",
+                appendPageParams(params, pageSize, offset).toArray());
         return TableDataInfo.build(list, total == null ? 0 : total, pageNum, pageSize);
     }
 
@@ -380,11 +382,13 @@ public class FarmerAlgoController {
         if (notBlank(level)) { where.append(" AND level = ?"); params.add(level); }
         if (notBlank(keyword)) { where.append(" AND (farmer_name LIKE ? OR farmer_phone LIKE ?)"); params.add("%" + keyword + "%"); params.add("%" + keyword + "%"); }
         Long total = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM farmer_profile" + where, Long.class, params.toArray());
-        int offset = (pageNum - 1) * pageSize;
+        pageNum = safePageNum(pageNum);
+        pageSize = safePageSize(pageSize);
+        long offset = ((long) pageNum - 1L) * pageSize;
         List<Map<String, Object>> list = jdbcTemplate.queryForList(
                 "SELECT id, farmer_name AS farmerName, farmer_phone AS farmerPhone, township, village, pound_group AS poundGroup," +
                         " k_cult, k_pp, k_hv, k_cur, k_syn, p_score AS pScore, level, weak_dim AS weakDim, priority" +
-                        " FROM farmer_profile" + where + " ORDER BY priority DESC LIMIT " + pageSize + " OFFSET " + offset, params.toArray());
+                        " FROM farmer_profile" + where + " ORDER BY priority DESC LIMIT ? OFFSET ?", appendPageParams(params, pageSize, offset).toArray());
         return TableDataInfo.build(list, total == null ? 0 : total, pageNum, pageSize);
     }
 
@@ -439,13 +443,28 @@ public class FarmerAlgoController {
         limit = Math.min(Math.max(limit, 1), 10);
         List<Map<String, Object>> top = jdbcTemplate.queryForList(
                 "SELECT farmer_name AS farmerName, township, village, k_cult, k_pp, k_hv, k_cur, k_syn, p_score AS pScore" +
-                        " FROM farmer_profile WHERE paper_id=? ORDER BY p_score ASC LIMIT " + limit, paperId);
+                        " FROM farmer_profile WHERE paper_id=? ORDER BY p_score ASC LIMIT ?", paperId, limit);
         Map<String, Object> r = new HashMap<>();
         r.put("top", top);
         return R.ok(r);
     }
 
     // ======================== 工具方法 ========================
+
+    private int safePageNum(int pageNum) {
+        return Math.min(Math.max(pageNum, 1), 10000);
+    }
+
+    private int safePageSize(int pageSize) {
+        return Math.min(Math.max(pageSize, 1), 100);
+    }
+
+    private List<Object> appendPageParams(List<Object> params, int pageSize, long offset) {
+        List<Object> result = new ArrayList<>(params);
+        result.add(pageSize);
+        result.add(offset);
+        return result;
+    }
 
     private Map<String, Object> buildBaseline(double[] m) {
         Map<String, Object> b = new LinkedHashMap<>();
