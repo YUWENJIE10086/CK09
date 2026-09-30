@@ -22,10 +22,11 @@ public class JwtUtil {
     @Value("${jwt.expire}")
     private long expire;
 
-    public String generateToken(Long userId, String userName) {
+    public String generateToken(Long userId, String userName, String userType) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("userName", userName);
+        claims.put("userType", userType);
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + expire * 1000);
 
