@@ -8,6 +8,7 @@ import com.barn.common.core.domain.TableDataInfo;
 import com.barn.system.entity.SysUser;
 import com.barn.system.mapper.SysUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -144,18 +145,24 @@ public class SysUserController {
      * 修改密码（用户自己修改）
      */
     @PutMapping("/updatePwd")
-    public R<Void> updatePwd(@RequestBody Map<String, String> params) {
-        Long id = Long.valueOf(params.getOrDefault("userId", "0"));
+    public R<Void> updatePwd(@RequestBody Map<String, String> params, Authentication authentication) {
         String oldPassword = params.get("oldPassword");
         String newPassword = params.get("newPassword");
 
-        if (id == 0 || oldPassword == null || !isValidPassword(newPassword)) {
+        if (oldPassword == null || !isValidPassword(newPassword)) {
             return R.fail("参数不完整");
         }
-        SysUser user = sysUserMapper.selectById(id);
-        if (user == null) {
-            return R.fail("用户不存在");
+
+        // 只能修改当前已认证用户自己的密码，禁止信任请求体中的 userId。
+        if (authentication == null || !(authentication.getPrincipal() instanceof SysUser)) {
+            return R.fail(401, "认证失败，请重新登录");
         }
+        SysUser principal = (SysUser) authentication.getPrincipal();
+        SysUser user = sysUserMapper.selectById(principal.getId());
+        if (user == null || !"0".equals(user.getStatus())) {
+            return R.fail(401, "认证失败，请重新登录");
+        }
+
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             return R.fail("原密码错误");
         }
