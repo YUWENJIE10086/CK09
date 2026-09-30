@@ -17,6 +17,30 @@ import java.util.*;
 @RequestMapping("/barn/health-algo")
 public class HealthAlgoController {
 
+    /**
+     * SQL 标识符不能使用 JDBC 占位符绑定，因此所有可进入动态列名的算法参数
+     * 必须先映射到服务端固定白名单。禁止把请求中的 algo 原样拼接进 SQL。
+     */
+    private static final Map<String, String> HEALTH_ALGO_COLUMNS;
+    private static final Map<String, String> LIFE_ALGO_COLUMNS;
+
+    static {
+        Map<String, String> healthColumns = new HashMap<>();
+        healthColumns.put("bmhi", "health_bmhi");
+        healthColumns.put("fche", "health_fche");
+        healthColumns.put("topsis", "health_topsis");
+        healthColumns.put("cdci", "health_cdci");
+        healthColumns.put("crhe", "health_crhe");
+        HEALTH_ALGO_COLUMNS = Collections.unmodifiableMap(healthColumns);
+
+        Map<String, String> lifeColumns = new HashMap<>();
+        lifeColumns.put("edrl", "life_edrl");
+        lifeColumns.put("wrrl", "life_wrrl");
+        lifeColumns.put("bdrl", "life_bdrl");
+        lifeColumns.put("gple", "life_gple");
+        LIFE_ALGO_COLUMNS = Collections.unmodifiableMap(lifeColumns);
+    }
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -110,7 +134,7 @@ public class HealthAlgoController {
             "SELECT project_id, use_status, finish_date, start_date FROM kf_basedata");
         
         int success = 0, fail = 0;
-        String column = "health_" + algo;
+        String column = requireHealthAlgoColumn(algo);
         
         for (Map<String, Object> barn : barns) {
             try {
@@ -478,7 +502,7 @@ public class HealthAlgoController {
             "SELECT project_id, finish_date, start_date FROM kf_basedata");
         
         int success = 0, fail = 0;
-        String column = "life_" + algo;
+        String column = requireLifeAlgoColumn(algo);
         
         for (Map<String, Object> barn : barns) {
             try {
@@ -590,6 +614,39 @@ public class HealthAlgoController {
         result.put("distribution", distribution);
         result.put("algo", algo);
         return R.ok(result);
+    }
+
+    /**
+     * 将外部健康算法名称解析为固定数据库列名。
+     * 非白名单值在任何 SQL 构造发生前立即拒绝。
+     */
+    private String requireHealthAlgoColumn(String algo) {
+        String normalized = normalizeAlgo(algo);
+        String column = HEALTH_ALGO_COLUMNS.get(normalized);
+        if (column == null) {
+            throw new IllegalArgumentException("不支持的健康算法: " + algo);
+        }
+        return column;
+    }
+
+    /**
+     * 将外部寿命算法名称解析为固定数据库列名。
+     * 与健康算法采用相同的标识符白名单策略，消除同类 SQL 注入面。
+     */
+    private String requireLifeAlgoColumn(String algo) {
+        String normalized = normalizeAlgo(algo);
+        String column = LIFE_ALGO_COLUMNS.get(normalized);
+        if (column == null) {
+            throw new IllegalArgumentException("不支持的寿命算法: " + algo);
+        }
+        return column;
+    }
+
+    private String normalizeAlgo(String algo) {
+        if (algo == null) {
+            return "";
+        }
+        return algo.trim().toLowerCase(Locale.ROOT);
     }
 
     // ======================== 核心算法实现 ========================
