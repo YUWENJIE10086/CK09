@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Locale;
 
 /**
  * JWT认证过滤器
@@ -38,14 +39,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (claims != null) {
                 String userName = (String) claims.get("userName");
                 SysUser user = sysUserService.getByUserName(userName);
-                if (user != null) {
+                if (user != null && "0".equals(user.getStatus())) {
+                    String role = resolveRole(user.getUserType());
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                            user, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+                            user, null, Collections.singletonList(new SimpleGrantedAuthority(role))
                     );
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * 将数据库 userType 映射为 Spring Security Authority。
+     * 兼容现有数据中 admin/00/0 的管理员表示；其他类型保持独立角色，
+     * 不再把所有认证用户统一降维为 ROLE_USER。
+     */
+    private String resolveRole(String userType) {
+        if (userType == null || userType.trim().isEmpty()) {
+            return "ROLE_USER";
+        }
+        String normalized = userType.trim().toUpperCase(Locale.ROOT);
+        if ("ADMIN".equals(normalized) || "00".equals(normalized) || "0".equals(normalized)) {
+            return "ROLE_ADMIN";
+        }
+        normalized = normalized.replaceAll("[^A-Z0-9_]", "_");
+        return "ROLE_" + normalized;
     }
 }
