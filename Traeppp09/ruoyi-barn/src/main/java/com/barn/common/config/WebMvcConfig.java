@@ -2,14 +2,13 @@ package com.barn.common.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.File;
 
 /**
- * Web MVC 配置 - CORS + 静态资源
+ * Web MVC 配置 - 静态资源
  */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -17,16 +16,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Value("${upload.path:d:/云盘/MyWeb/烤房项目/upload/}")
     private String uploadPath;
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOriginPatterns("*")
-                .allowedMethods("*")
-                .allowedHeaders("*")
-                .allowCredentials(true)
-                .maxAge(3600);
-    }
-
+    // CORS 统一由 Spring Security 的 CorsConfigurationSource 管理，避免重复/冲突配置。
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 将 /upload/** 映射到磁盘上传目录，开发环境可直接访问图片
