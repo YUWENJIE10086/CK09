@@ -67,7 +67,11 @@
 结果：SUCCESS。
 其中 Compile and test：SUCCESS。
 
-3.10 交叉补丁提交后会由同一 workflow 再次触发验证；最终验收应以最新 main 对应 run 为 SUCCESS 为准。
+3.10 交叉补丁提交后再次触发验证 Run：`36682982309`，结果：SUCCESS，Compile and test：SUCCESS。
+
+因此两轮 GitHub Actions Maven 验证均通过：
+- Run 36681918364：SUCCESS
+- Run 36682982309：SUCCESS
 
 ## 五、不能被源码整改替代的部署事项
 以下事项不能通过 GitHub 源码本身证明已经完成：
