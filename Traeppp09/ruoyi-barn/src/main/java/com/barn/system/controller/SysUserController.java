@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.barn.common.core.domain.R;
 import com.barn.common.core.domain.TableDataInfo;
+import com.barn.system.dto.SysUserRequest;
 import com.barn.system.entity.SysUser;
 import com.barn.system.mapper.SysUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,24 +77,25 @@ public class SysUserController {
      * 新增用户
      */
     @PostMapping
-    public R<Void> add(@RequestBody SysUser user) {
+    public R<Void> add(@RequestBody SysUserRequest request) {
         // 检查用户名是否重复
         LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(SysUser::getUserName, user.getUserName());
+        wrapper.eq(SysUser::getUserName, request.getUserName());
         if (sysUserMapper.selectCount(wrapper) > 0) {
             return R.fail("用户名已存在");
         }
-        if (!isValidPassword(user.getPassword())) {
+        if (!isValidPassword(request.getPassword())) {
             return R.fail("密码长度必须为8-64位");
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        SysUser user = new SysUser();
+        copyAllowedUserFields(request, user, false);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
+        user.setDelFlag("0");
         if (user.getStatus() == null || user.getStatus().isEmpty()) {
             user.setStatus("0");
-        }
-        if (user.getDelFlag() == null || user.getDelFlag().isEmpty()) {
-            user.setDelFlag("0");
         }
         sysUserMapper.insert(user);
         return R.ok();
@@ -103,8 +105,18 @@ public class SysUserController {
      * 修改用户
      */
     @PutMapping
-    public R<Void> edit(@RequestBody SysUser user) {
-        user.setPassword(null); // 不允许通过此接口修改密码
+    public R<Void> edit(@RequestBody SysUserRequest request) {
+        if (request.getId() == null) {
+            return R.fail("用户ID不能为空");
+        }
+        SysUser existing = sysUserMapper.selectById(request.getId());
+        if (existing == null) {
+            return R.fail("用户不存在");
+        }
+
+        SysUser user = new SysUser();
+        user.setId(existing.getId());
+        copyAllowedUserFields(request, user, true);
         user.setUpdatedAt(LocalDateTime.now());
         sysUserMapper.updateById(user);
         return R.ok();
@@ -185,6 +197,23 @@ public class SysUserController {
         user.setUpdatedAt(LocalDateTime.now());
         sysUserMapper.updateById(user);
         return R.ok();
+    }
+
+    /**
+     * 只复制允许由用户管理接口写入的业务字段。
+     * delFlag/loginIp/loginAt/createdBy/createdAt/updatedBy/password 等敏感字段不在此白名单中。
+     */
+    private void copyAllowedUserFields(SysUserRequest request, SysUser user, boolean editing) {
+        user.setDeptId(request.getDeptId());
+        user.setUserName(request.getUserName());
+        user.setNickName(request.getNickName());
+        user.setUserType(request.getUserType());
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+        user.setSex(request.getSex());
+        user.setAvatar(request.getAvatar());
+        user.setStatus(request.getStatus());
+        user.setRemark(request.getRemark());
     }
 
     private boolean isValidPassword(String password) {
