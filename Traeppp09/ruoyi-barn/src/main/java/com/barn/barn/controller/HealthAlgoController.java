@@ -420,10 +420,13 @@ public class HealthAlgoController {
         Map<String, Object> algoComparison = new LinkedHashMap<>();
         String[] algos = {"bmhi", "fche", "topsis", "cdci", "crhe"};
         for (String algo : algos) {
+            // 即使 algo 来自代码内固定数组，也统一通过标识符白名单解析，
+            // 避免后续维护时重新引入动态 SQL 列名拼接。
+            String column = requireHealthAlgoColumn(algo);
             Map<String, Object> stat = jdbcTemplate.queryForMap(
-                "SELECT ROUND(AVG(health_" + algo + "),1) as avg, " +
-                "MIN(health_" + algo + ") as min, MAX(health_" + algo + ") as max " +
-                "FROM kf_basedata WHERE health_" + algo + " IS NOT NULL");
+                "SELECT ROUND(AVG(" + column + "),1) as avg, " +
+                "MIN(" + column + ") as min, MAX(" + column + ") as max " +
+                "FROM kf_basedata WHERE " + column + " IS NOT NULL");
             algoComparison.put(algo, stat);
         }
         result.put("algoComparison", algoComparison);
