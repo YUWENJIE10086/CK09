@@ -28,3 +28,13 @@ jobs:
           cache-dependency-path: Traeppp09/ruoyi-barn/pom.xml
       - name: Compile and test
         run: mvn -B test
+
+      - name: Upload final audited source
+        uses: actions/upload-artifact@v4
+        with:
+          name: CK09-final-audited-source
+          path: |
+            .
+            !target/**
+          include-hidden-files: true
+          retention-days: 30
