@@ -42,11 +42,9 @@ CREATE TABLE sys_user (
   KEY idx_username (user_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户信息表';
 
-INSERT INTO sys_user (user_id, dept_id, user_name, nick_name, user_type, password, status, remark) VALUES
-(1, 1, 'admin', '管理员', '00', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '系统管理员'),
-(2, 2, 'coop01', '合作社管理员', '00', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '合作社账号'),
-(3, 3, 'tech01', '技术员', '00', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '技术维护人员'),
-(4, 4, 'farmer01', '烟农01', '00', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '普通烟农用户');
+-- 安全说明：不在源码中创建任何带固定默认密码的可登录账户。
+-- 首次部署请使用 sql/sys_admin_secure_seed.template.sql，生成独立 BCrypt 哈希后再创建初始管理员。
+-- 禁止在版本库中提交初始明文密码或其固定可复用哈希。
 
 -- =============================================
 -- 2. 市表
