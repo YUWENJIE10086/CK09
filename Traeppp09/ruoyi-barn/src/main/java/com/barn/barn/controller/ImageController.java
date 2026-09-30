@@ -15,6 +15,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -24,6 +28,9 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @RequestMapping("/api/image")
 public class ImageController {
+
+    private static final Set<String> ALLOWED_IMAGE_EXTENSIONS =
+            Set.of(".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp");
 
     @Value("${upload.path:d:/云盘/MyWeb/烤房项目/upload/}")
     private String uploadPath;
@@ -130,13 +137,46 @@ public class ImageController {
             cleaned = cleaned.substring("upload/".length());
         }
 
-        // 拼接上传路径
-        String basePath = uploadPath;
-        if (!basePath.endsWith("/") && !basePath.endsWith("\\")) {
-            basePath += File.separator;
+        // 拒绝 NUL 字符和绝对路径。路径必须始终相对于 upload.path。
+        if (cleaned.indexOf('\0') >= 0) {
+            return null;
         }
 
-        return new File(basePath + cleaned);
+        // 同时处理来自 Windows/Unix 客户端的路径分隔符，避免反斜杠绕过。
+        cleaned = cleaned.replace('\\', '/');
+        while (cleaned.startsWith("/")) {
+            cleaned = cleaned.substring(1);
+        }
+        if (cleaned.isEmpty()) {
+            return null;
+        }
+
+        Path relativePath;
+        try {
+            relativePath = Paths.get(cleaned);
+        } catch (RuntimeException ex) {
+            return null;
+        }
+        if (relativePath.isAbsolute()) {
+            return null;
+        }
+
+        // 只允许预期图片类型，避免把接口变成任意文件读取器。
+        String lowerName = relativePath.getFileName().toString().toLowerCase(Locale.ROOT);
+        boolean allowedExtension = ALLOWED_IMAGE_EXTENSIONS.stream().anyMatch(lowerName::endsWith);
+        if (!allowedExtension) {
+            return null;
+        }
+
+        // 先规范化根目录和目标路径，再验证目标仍位于根目录内。
+        // startsWith(Path) 是路径段级比较，不是易绕过的字符串前缀比较。
+        Path uploadRoot = Paths.get(uploadPath).toAbsolutePath().normalize();
+        Path resolved = uploadRoot.resolve(relativePath).normalize();
+        if (!resolved.startsWith(uploadRoot) || resolved.equals(uploadRoot)) {
+            return null;
+        }
+
+        return resolved.toFile();
     }
 
     /**
