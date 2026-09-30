@@ -174,7 +174,7 @@ public class HealthAlgoController {
             @RequestParam(required = false) String county,
             @RequestParam(required = false) String keyword) {
         
-        String column = "health_" + algo.toLowerCase();
+        String column = requireHealthAlgoColumn(algo);
         StringBuilder where = new StringBuilder("WHERE 1=1");
         List<Object> params = new ArrayList<>();
         if (county != null && !county.isEmpty()) {
@@ -223,7 +223,7 @@ public class HealthAlgoController {
      */
     @GetMapping("/stats")
     public R<Map<String, Object>> stats(@RequestParam(defaultValue = "bmhi") String algo) {
-        String column = "health_" + algo.toLowerCase();
+        String column = requireHealthAlgoColumn(algo);
         Map<String, Object> result = new LinkedHashMap<>();
         
         Map<String, Object> totalRow = jdbcTemplate.queryForMap(
@@ -540,7 +540,7 @@ public class HealthAlgoController {
             @RequestParam(required = false) String county,
             @RequestParam(required = false) String keyword) {
         
-        String column = "life_" + algo.toLowerCase();
+        String column = requireLifeAlgoColumn(algo);
         StringBuilder where = new StringBuilder("WHERE 1=1");
         List<Object> params = new ArrayList<>();
         if (county != null && !county.isEmpty()) {
@@ -590,7 +590,7 @@ public class HealthAlgoController {
      */
     @GetMapping("/life-stats")
     public R<Map<String, Object>> lifeStats(@RequestParam(defaultValue = "bdrl") String algo) {
-        String column = "life_" + algo.toLowerCase();
+        String column = requireLifeAlgoColumn(algo);
         Map<String, Object> result = new LinkedHashMap<>();
         
         Map<String, Object> totalRow = jdbcTemplate.queryForMap(
