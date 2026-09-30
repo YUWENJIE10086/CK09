@@ -50,7 +50,7 @@ public class LoginController {
             return R.fail(401, "用户名或密码错误");
         }
 
-        String token = jwtUtil.generateToken(user.getId(), user.getUserName());
+        String token = jwtUtil.generateToken(user.getId(), user.getUserName(), user.getUserType());
 
         Map<String, Object> data = new HashMap<>();
         data.put("token", token);
